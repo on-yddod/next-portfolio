@@ -40,10 +40,7 @@ export default function Home() {
   const fetchCommandData = useCallback(async () => {
     await fetchStore<CommandData>(
       "command_list",
-      (data) => setCommandList(data),
-      (_err: unknown) => {
-        // console.error("Error:", err);
-      }
+      (data) => setCommandList(data)
     );
   }, []);
 

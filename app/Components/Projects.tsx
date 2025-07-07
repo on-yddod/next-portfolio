@@ -24,10 +24,7 @@ export default function Projects() {
 
         await fetchStore<IProjectData>(
             "projects",
-            (data) => setProjectData(data),
-            (_err: unknown) => {
-                // console.error("Error:", err);
-            }
+            (data) => setProjectData(data)
         );
 
         // console.log("isLoading = false");
