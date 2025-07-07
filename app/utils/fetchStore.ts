@@ -15,10 +15,10 @@ export const fetchStore = async <T>(
             result.push(data);
         });
 
-        console.log("✅ Fetched from Firestore:", result);
+        // console.log("✅ Fetched from Firestore:", result);
         onSuccess(result);
     } catch (error) {
-        console.error("❌ Error fetching store:", error);
+        // console.error("❌ Error fetching store:", error);
         if (onError) onError(error);
     }
 };

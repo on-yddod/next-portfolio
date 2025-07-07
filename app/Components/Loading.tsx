@@ -11,9 +11,9 @@ interface TerminalLoadingProps {
 }
 
 export default function Loading({
-    text = 'Loading',
+    text = "Loading",
     speed = 100,
-    className = '',
+    className = "",
 }: TerminalLoadingProps) {
     const [frameIndex, setFrameIndex] = useState(0);
 

@@ -15,20 +15,22 @@ export default function Skills() {
     const [hasAlreadyLoaded, setHasAlreadyLoaded] = useState<boolean>(false);
 
     const fetchProjectData = useCallback(async () => {
-        console.log("fetchProjectData()");
+        // console.log("fetchProjectData()");
 
         if (isLoading || hasAlreadyLoaded) return;
 
-        console.log("isLoading = true");
+        // console.log("isLoading = true");
         setIsLoading(true);
 
         await fetchStore<ISkillData>(
             "skills",
             (data) => setSkillData(data),
-            (err: unknown) => console.error("Error:", err)
+            (err: unknown) => {
+                // console.error("Error:", err);
+            }
         );
 
-        console.log("isLoading = false");
+        // console.log("isLoading = false");
         setHasAlreadyLoaded(true);
 
         setTimeout(() => {
@@ -38,7 +40,6 @@ export default function Skills() {
 
     useEffect(() => {
         fetchProjectData();
-        console.log(skillData);
     }, [fetchProjectData]);
 
     const loadingUI = (

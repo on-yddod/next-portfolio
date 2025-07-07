@@ -14,20 +14,22 @@ export default function Contact() {
     const [hasAlreadyLoaded, setHasAlreadyLoaded] = useState<boolean>(false);
 
     const fetchContactData = useCallback(async () => {
-        console.log("fetchContactData()");
+        // console.log("fetchContactData()");
 
         if (isLoading || hasAlreadyLoaded) return;
 
-        console.log("isLoading = true");
+        // console.log("isLoading = true");
         setIsLoading(true);
 
         await fetchStore<IContactData>(
             "contact",
             (data) => setContactData(data),
-            (err: unknown) => console.error("Error:", err)
+            (err: unknown) => {
+                // console.error("Error:", err);
+            }
         );
 
-        console.log("isLoading = false");
+        // console.log("isLoading = false");
         setHasAlreadyLoaded(true);
 
         setTimeout(() => {
@@ -37,7 +39,7 @@ export default function Contact() {
 
     useEffect(() => {
         fetchContactData();
-        console.log(contactData);
+        // console.log(contactData);
     }, [fetchContactData]);
 
     const loadingUI = (
@@ -54,7 +56,7 @@ export default function Contact() {
 
     const alreadyDataUI = (
         <div>
-            <p>{'~>'} contact</p>
+            <p>{"~>"} contact</p>
             <p className="text-[23px] text-white">Contact me :</p>
             <div className="my-3">
                 {contactData.map((item, index) => (
