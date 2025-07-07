@@ -22,10 +22,10 @@ export default function Skills() {
         console.log("isLoading = true");
         setIsLoading(true);
 
-        await fetchStore(
+        await fetchStore<ISkillData>(
             "skills",
-            (data: ISkillData[]) => setSkillData(data), // ✅ ใส่ array type
-            (err: any) => console.error("Error:", err)
+            (data) => setSkillData(data),
+            (err: unknown) => console.error("Error:", err)
         );
 
         console.log("isLoading = false");
@@ -34,12 +34,12 @@ export default function Skills() {
         setTimeout(() => {
             setIsLoading(false);
         }, 500);
-    }, []);
+    }, [isLoading, hasAlreadyLoaded]);
 
     useEffect(() => {
         fetchProjectData();
         console.log(skillData);
-    }, []);
+    }, [fetchProjectData]);
 
     const loadingUI = (
         <div className="w-full text-center p-5">
@@ -69,9 +69,11 @@ export default function Skills() {
 
     return (
         <div>
-            {
-                isLoading ? loadingUI : !isLoading && skillData.length == 0 ? noDataUI : alreadyDataUI
-            }
+            {isLoading
+                ? loadingUI
+                : !isLoading && skillData.length === 0
+                    ? noDataUI
+                    : alreadyDataUI}
         </div>
     );
 }

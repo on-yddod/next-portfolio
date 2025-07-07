@@ -22,10 +22,10 @@ export default function Projects() {
         console.log("isLoading = true");
         setIsLoading(true);
 
-        await fetchStore(
+        await fetchStore<IProjectData>(
             "projects",
-            (data: IProjectData[]) => setProjectData(data), // ✅ ใส่ array type
-            (err: any) => console.error("Error:", err)
+            (data) => setProjectData(data),
+            (err: unknown) => console.error("Error:", err)
         );
 
         console.log("isLoading = false");
@@ -34,11 +34,11 @@ export default function Projects() {
         setTimeout(() => {
             setIsLoading(false);
         }, 500);
-    }, []);
+    }, [isLoading, hasAlreadyLoaded]);
 
     useEffect(() => {
         fetchProjectData();
-    }, []);
+    }, [fetchProjectData]);
 
     const loadingUI = (
         <div className="w-full text-center p-5">
@@ -57,32 +57,35 @@ export default function Projects() {
             <p>{'~>'} projects</p>
             <div className="my-2">
                 <p className="text-[23px] text-white font-bold">My Project :</p>
-                {/* <p className="font-bold text-[20px]"># You can scroll!</p> */}
-
-                {
-                    projectData && projectData.map((project, index) => (
-                        <div className="my-6" key={index}>
-                            <div>
-                                <p>
-                                    <a href={project.reference} className="text-blue-500 font-bold text-[15px] underline">{project.title}</a> - <span className="text-white">
-                                        {project.core.join(', ')}</span>
-                                </p>
-                            </div>
-                            <div>
-                                <p>{project.description}</p>
-                            </div>
+                {projectData.map((project, index) => (
+                    <div className="my-6" key={index}>
+                        <div>
+                            <p>
+                                <a
+                                    href={project.reference}
+                                    className="text-blue-500 font-bold text-[15px] underline"
+                                >
+                                    {project.title}
+                                </a>{" "}
+                                - <span className="text-white">{project.core.join(", ")}</span>
+                            </p>
                         </div>
-                    ))
-                }
+                        <div>
+                            <p>{project.description}</p>
+                        </div>
+                    </div>
+                ))}
             </div>
         </div>
     );
 
     return (
         <div>
-            {
-                isLoading ? loadingUI : !isLoading && projectData.length == 0 ? noDataUI : alreadyDataUI
-            }
+            {isLoading
+                ? loadingUI
+                : !isLoading && projectData.length === 0
+                    ? noDataUI
+                    : alreadyDataUI}
         </div>
     );
 }

@@ -14,17 +14,17 @@ export default function Contact() {
     const [hasAlreadyLoaded, setHasAlreadyLoaded] = useState<boolean>(false);
 
     const fetchContactData = useCallback(async () => {
-        console.log("fetchProjectData()");
+        console.log("fetchContactData()");
 
         if (isLoading || hasAlreadyLoaded) return;
 
         console.log("isLoading = true");
         setIsLoading(true);
 
-        await fetchStore(
+        await fetchStore<IContactData>(
             "contact",
-            (data: IContactData[]) => setContactData(data), // ✅ ใส่ array type
-            (err: any) => console.error("Error:", err)
+            (data) => setContactData(data),
+            (err: unknown) => console.error("Error:", err)
         );
 
         console.log("isLoading = false");
@@ -33,12 +33,12 @@ export default function Contact() {
         setTimeout(() => {
             setIsLoading(false);
         }, 500);
-    }, []);
+    }, [isLoading, hasAlreadyLoaded]);
 
     useEffect(() => {
         fetchContactData();
         console.log(contactData);
-    }, []);
+    }, [fetchContactData]);
 
     const loadingUI = (
         <div className="w-full text-center p-5">
@@ -57,23 +57,30 @@ export default function Contact() {
             <p>{'~>'} contact</p>
             <p className="text-[23px] text-white">Contact me :</p>
             <div className="my-3">
-                {
-                    contactData && contactData.map((item, index) => (
-                        <div key={index} className="flex justify-between w-full px-4">
-                            <p><span className="text-[10px]">#</span> {item.title}</p>
-                            <p><a href={item.reference} className="text-blue-500 underline font-bold">{item.description}</a></p>
-                        </div>
-                    ))
-                }
+                {contactData.map((item, index) => (
+                    <div key={index} className="flex justify-between w-full px-4">
+                        <p><span className="text-[10px]">#</span> {item.title}</p>
+                        <p>
+                            <a
+                                href={item.reference}
+                                className="text-blue-500 underline font-bold"
+                            >
+                                {item.description}
+                            </a>
+                        </p>
+                    </div>
+                ))}
             </div>
         </div>
-    )
+    );
 
     return (
         <div>
-            {
-                isLoading ? loadingUI : !isLoading && contactData.length === 0 ? noDataUI : alreadyDataUI
-            }
+            {isLoading
+                ? loadingUI
+                : !isLoading && contactData.length === 0
+                    ? noDataUI
+                    : alreadyDataUI}
         </div>
     );
 }

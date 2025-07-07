@@ -1,17 +1,17 @@
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../firebase.client";
 
-export const fetchStore = async (
+export const fetchStore = async <T>(
     collectionName: string,
-    onSuccess: (data: any[]) => void,
-    onError?: (e: any) => void
+    onSuccess: (data: T[]) => void,
+    onError?: (e: unknown) => void
 ) => {
     try {
         const querySnapshot = await getDocs(collection(db, collectionName));
-        const result: any[] = [];
+        const result: T[] = [];
 
         querySnapshot.forEach((doc) => {
-            const data = doc.data();
+            const data = doc.data() as T;
             result.push(data);
         });
 

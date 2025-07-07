@@ -1,7 +1,6 @@
-
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { JSX, useCallback, useEffect, useRef, useState } from "react";
 
 import Clear from "./Components/Clear";
 import Help from "./Components/Help";
@@ -20,32 +19,36 @@ interface CommandData {
   output: string;
 }
 
+interface IOutputList {
+  command: string;
+  output: JSX.Element;
+}
+
 export default function Home() {
   const [commandList, setCommandList] = useState<CommandData[]>([]);
-  const [outputList, setOutputList] = useState<Array<any>>([]);
+  const [outputList, setOutputList] = useState<IOutputList[]>([]);
   const [input, setInput] = useState<string>("");
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const FocusInput = () => {
+  const FocusInput = useCallback(() => {
     inputRef.current?.focus();
     inputRef.current?.select();
-  }
+  }, []);
 
   const fetchCommandData = useCallback(async () => {
-    await fetchStore(
+    await fetchStore<CommandData>(
       "command_list",
-      (data: CommandData[]) => setCommandList(data),
-      (err: any) => console.error("Error:", err)
+      (data) => setCommandList(data),
+      (err: unknown) => console.error("Error:", err)
     );
   }, []);
 
   useEffect(() => {
     fetchCommandData();
     FocusInput();
-  }, []);
-
+  }, [fetchCommandData, FocusInput]);
 
   useEffect(() => {
     const container = scrollRef.current;
@@ -56,14 +59,14 @@ export default function Home() {
 
   const ListAllInfomation = () => {
     const generalCommands = commandList.filter(cmd => cmd.type === "general");
-    const rendered = generalCommands.map(cmd => ({
+    const rendered: IOutputList[] = generalCommands.map(cmd => ({
       command: cmd.command,
       output: renderOutputComponent(cmd.output)
     }));
     setOutputList(prev => [...prev, ...rendered]);
   }
 
-  const renderOutputComponent = (commandName: string) => {
+  const renderOutputComponent = (commandName: string): JSX.Element => {
     switch (commandName) {
       case "about": return <About />;
       case "education": return <Education />;
@@ -77,7 +80,7 @@ export default function Home() {
     }
   }
 
-  const MappingCommand = (input: string) => {
+  const MappingCommand = (input: string): IOutputList | undefined => {
     if (input === "list -a") {
       ListAllInfomation();
       return;
@@ -103,7 +106,7 @@ export default function Home() {
     };
   }
 
-  const HandleSubmit = (e: React.FormEvent) => {
+  const HandleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (input.trim() === "") return;
 
@@ -120,14 +123,14 @@ export default function Home() {
       <div className="w-3/6 text-green-500 font-terminal p-2 overflow-auto scrollbar" ref={scrollRef}>
         {/* Header */}
         <div className="sticky top-[-8px] bg-black">
-          <p className="text-white text-2xl">yddod's Portfolio</p>
+          <p className="text-white text-2xl">yddod&apos;s Portfolio</p>
         </div>
 
         {/* Output */}
         <div>
-          <p>type `help` to start!</p>
-          {outputList.map((item: any, index: number) => (
-            <div key={index}>{item?.output}</div>
+          <p>type <code>help</code> to start!</p>
+          {outputList.map((item, index) => (
+            <div key={index}>{item.output}</div>
           ))}
         </div>
 
@@ -152,158 +155,3 @@ export default function Home() {
     </div>
   );
 }
-
-
-//#region Hardcode
-// 'use client'
-
-// import { useEffect, useRef, useState } from "react";
-// import Clear from "./Components/Clear";
-// import Help from "./Components/Help";
-// import About from "./Components/About";
-// import Unknown from "./Components/Unknown";
-// import Education from "./Components/Education";
-// import Skills from "./Components/Skills";
-// import Projects from "./Components/Projects";
-// import Contact from "./Components/Contact";
-
-// const commandList = [
-//   {
-//     command: "about",
-//     type: "general",
-//     output: <About />
-//   },
-//   {
-//     command: "education",
-//     type: "general",
-//     output: <Education />
-//   },
-//   {
-//     command: "skills",
-//     type: "general",
-//     output: <Skills />
-//   },
-//   {
-//     command: "projects",
-//     type: "general",
-//     output: <Projects />
-//   },
-//   {
-//     command: "contact",
-//     type: "general",
-//     output: <Contact />
-//   },
-//   {
-//     command: "help",
-//     type: "special",
-//     output: <Help />
-//   },
-//   {
-//     command: "clear -a",
-//     type: "special",
-//     output: <Clear />
-//   },
-//   {
-//     command: "list -a",
-//     type: "special",
-//     output: <Clear />
-//   },
-// ];
-
-// export default function Home() {
-//   const [outputList, setOutputList] = useState<Array<any>>([]);
-
-//   const scrollRef = useRef<HTMLDivElement>(null);
-//   const inputRef = useRef<HTMLInputElement>(null);
-//   const [input, setInput] = useState<string>("");
-
-//   const FocusInput = () => {
-//     inputRef.current?.focus();
-//     inputRef.current?.select();
-//   }
-
-//   useEffect(() => {
-//     FocusInput();
-//   }, []);
-
-//   useEffect(() => {
-//     const container = scrollRef.current;
-//     if (container) {
-//       container.scrollTop = container.scrollHeight;
-//     }
-//   }, [outputList]);
-
-//   const HandleSubmit = (e: any) => {
-//     e.preventDefault();
-
-//     console.log("HandleSubmit input value : ", input);
-
-//     if (input == "") return;
-
-//     const mappedOutput = MappingCommand(input);
-//     setOutputList(prev => [...prev, mappedOutput]);
-//     setInput("");
-//   }
-
-//   const ClearTerminal = () => setOutputList([]);
-
-//   const HandleInputChange = (e: any) => {
-//     setInput(e.target.value);
-//   }
-
-//   const ListAllInfomation = () => {
-//     const filteredCommand = commandList.filter(cmd => cmd.type == "general");
-//     console.log(filteredCommand);
-//     setOutputList(prev => [...prev, ...filteredCommand]);
-//   }
-
-//   const MappingCommand = (input: string) => {
-//     const unknownCommandObj = {
-//       command: "unknown",
-//       output: <Unknown input={input} />
-//     };
-
-//     if (input == "list -a") {
-//       ListAllInfomation();
-//       return;
-//     }
-
-//     if (input == "clear -a") ClearTerminal();
-
-//     const findedCommandObj = commandList.find(cmd => cmd.command == input);
-//     return findedCommandObj || unknownCommandObj;
-//   }
-
-//   return (
-//     <div className="flex justify-center bg-black w-full h-full fixed">
-//       <div className="w-3/6 text-green-500 font-terminal p-2 overflow-auto scrollbar" ref={scrollRef}>
-//         {/* Header */}
-//         <div>
-//           <p className="text-white text-2xl">yddod's Portfolio</p>
-//           <p>type `help` to start!</p>
-//         </div>
-
-//         {/* Ouput */}
-//         <div>
-//           {
-//             outputList && outputList.map((item: any, index: number) => (
-//               <div key={index}>
-//                 {item?.output}
-//               </div>
-//             ))
-//           }
-//         </div>
-
-//         {/* Input */}
-//         <div>
-//           <form onSubmit={(e) => HandleSubmit(e)} className="flex justify-center items-center">
-//             <label className="w-[25px]" htmlFor="input">{"~>"}</label>
-//             <input type="text" name="input" className="border-none border-[1px] w-full outline-0" ref={inputRef} value={input} onChange={(e) => HandleInputChange(e)} />
-//           </form>
-//         </div>
-//         <div className="w-full h-[120px]"></div>
-//       </div>
-//     </div>
-//   );
-// }
-//#endregion
