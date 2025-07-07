@@ -1,103 +1,309 @@
-import Image from "next/image";
+
+'use client'
+
+import { useCallback, useEffect, useRef, useState } from "react";
+
+import Clear from "./Components/Clear";
+import Help from "./Components/Help";
+import About from "./Components/About";
+import Unknown from "./Components/Unknown";
+import Education from "./Components/Education";
+import Skills from "./Components/Skills";
+import Projects from "./Components/Projects";
+import Contact from "./Components/Contact";
+import { fetchStore } from "./utils/fetchStore";
+
+interface CommandData {
+  command: string;
+  type: "general" | "special";
+  title: string;
+  output: string;
+}
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [commandList, setCommandList] = useState<CommandData[]>([]);
+  const [outputList, setOutputList] = useState<Array<any>>([]);
+  const [input, setInput] = useState<string>("");
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const FocusInput = () => {
+    inputRef.current?.focus();
+    inputRef.current?.select();
+  }
+
+  const fetchCommandData = useCallback(async () => {
+    await fetchStore(
+      "command_list",
+      (data: CommandData[]) => setCommandList(data),
+      (err: any) => console.error("Error:", err)
+    );
+  }, []);
+
+  useEffect(() => {
+    fetchCommandData();
+    FocusInput();
+  }, []);
+
+
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (container) container.scrollTop = container.scrollHeight;
+  }, [outputList]);
+
+  const ClearTerminal = () => setOutputList([]);
+
+  const ListAllInfomation = () => {
+    const generalCommands = commandList.filter(cmd => cmd.type === "general");
+    const rendered = generalCommands.map(cmd => ({
+      command: cmd.command,
+      output: renderOutputComponent(cmd.output)
+    }));
+    setOutputList(prev => [...prev, ...rendered]);
+  }
+
+  const renderOutputComponent = (commandName: string) => {
+    switch (commandName) {
+      case "about": return <About />;
+      case "education": return <Education />;
+      case "skills": return <Skills />;
+      case "projects": return <Projects />;
+      case "contact": return <Contact />;
+      case "help": return <Help commandListParam={commandList} />;
+      case "clear": return <Clear />;
+      case "list": return <Clear />;
+      default: return <Unknown input={commandName} />;
+    }
+  }
+
+  const MappingCommand = (input: string) => {
+    if (input === "list -a") {
+      ListAllInfomation();
+      return;
+    }
+
+    if (input === "clear -a") {
+      ClearTerminal();
+      return;
+    }
+
+    const findedCommandObj = commandList.find(cmd => cmd.command === input);
+
+    if (findedCommandObj) {
+      return {
+        command: findedCommandObj.command,
+        output: renderOutputComponent(findedCommandObj.output)
+      };
+    }
+
+    return {
+      command: "unknown",
+      output: <Unknown input={input} />
+    };
+  }
+
+  const HandleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (input.trim() === "") return;
+
+    const mappedOutput = MappingCommand(input);
+    if (mappedOutput) {
+      setOutputList(prev => [...prev, mappedOutput]);
+    }
+
+    setInput("");
+  }
+
+  return (
+    <div className="flex justify-center bg-black w-full h-full fixed">
+      <div className="w-3/6 text-green-500 font-terminal p-2 overflow-auto scrollbar" ref={scrollRef}>
+        {/* Header */}
+        <div>
+          <p className="text-white text-2xl">yddod's Portfolio</p>
+          <p>type `help` to start!</p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        {/* Output */}
+        <div>
+          {outputList.map((item: any, index: number) => (
+            <div key={index}>{item?.output}</div>
+          ))}
+        </div>
+
+        {/* Input */}
+        <div>
+          <form onSubmit={HandleSubmit} className="flex justify-center items-center">
+            <label className="w-[25px]" htmlFor="input">{"~>"}</label>
+            <input
+              type="text"
+              name="input"
+              className="border-none border-[1px] w-full outline-0 bg-transparent text-green-500"
+              ref={inputRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+            />
+          </form>
+        </div>
+
+        {/* Keep Space */}
+        <div className="w-full h-[120px]"></div>
+      </div>
     </div>
   );
 }
+
+
+//#region Hardcode
+// 'use client'
+
+// import { useEffect, useRef, useState } from "react";
+// import Clear from "./Components/Clear";
+// import Help from "./Components/Help";
+// import About from "./Components/About";
+// import Unknown from "./Components/Unknown";
+// import Education from "./Components/Education";
+// import Skills from "./Components/Skills";
+// import Projects from "./Components/Projects";
+// import Contact from "./Components/Contact";
+
+// const commandList = [
+//   {
+//     command: "about",
+//     type: "general",
+//     output: <About />
+//   },
+//   {
+//     command: "education",
+//     type: "general",
+//     output: <Education />
+//   },
+//   {
+//     command: "skills",
+//     type: "general",
+//     output: <Skills />
+//   },
+//   {
+//     command: "projects",
+//     type: "general",
+//     output: <Projects />
+//   },
+//   {
+//     command: "contact",
+//     type: "general",
+//     output: <Contact />
+//   },
+//   {
+//     command: "help",
+//     type: "special",
+//     output: <Help />
+//   },
+//   {
+//     command: "clear -a",
+//     type: "special",
+//     output: <Clear />
+//   },
+//   {
+//     command: "list -a",
+//     type: "special",
+//     output: <Clear />
+//   },
+// ];
+
+// export default function Home() {
+//   const [outputList, setOutputList] = useState<Array<any>>([]);
+
+//   const scrollRef = useRef<HTMLDivElement>(null);
+//   const inputRef = useRef<HTMLInputElement>(null);
+//   const [input, setInput] = useState<string>("");
+
+//   const FocusInput = () => {
+//     inputRef.current?.focus();
+//     inputRef.current?.select();
+//   }
+
+//   useEffect(() => {
+//     FocusInput();
+//   }, []);
+
+//   useEffect(() => {
+//     const container = scrollRef.current;
+//     if (container) {
+//       container.scrollTop = container.scrollHeight;
+//     }
+//   }, [outputList]);
+
+//   const HandleSubmit = (e: any) => {
+//     e.preventDefault();
+
+//     console.log("HandleSubmit input value : ", input);
+
+//     if (input == "") return;
+
+//     const mappedOutput = MappingCommand(input);
+//     setOutputList(prev => [...prev, mappedOutput]);
+//     setInput("");
+//   }
+
+//   const ClearTerminal = () => setOutputList([]);
+
+//   const HandleInputChange = (e: any) => {
+//     setInput(e.target.value);
+//   }
+
+//   const ListAllInfomation = () => {
+//     const filteredCommand = commandList.filter(cmd => cmd.type == "general");
+//     console.log(filteredCommand);
+//     setOutputList(prev => [...prev, ...filteredCommand]);
+//   }
+
+//   const MappingCommand = (input: string) => {
+//     const unknownCommandObj = {
+//       command: "unknown",
+//       output: <Unknown input={input} />
+//     };
+
+//     if (input == "list -a") {
+//       ListAllInfomation();
+//       return;
+//     }
+
+//     if (input == "clear -a") ClearTerminal();
+
+//     const findedCommandObj = commandList.find(cmd => cmd.command == input);
+//     return findedCommandObj || unknownCommandObj;
+//   }
+
+//   return (
+//     <div className="flex justify-center bg-black w-full h-full fixed">
+//       <div className="w-3/6 text-green-500 font-terminal p-2 overflow-auto scrollbar" ref={scrollRef}>
+//         {/* Header */}
+//         <div>
+//           <p className="text-white text-2xl">yddod's Portfolio</p>
+//           <p>type `help` to start!</p>
+//         </div>
+
+//         {/* Ouput */}
+//         <div>
+//           {
+//             outputList && outputList.map((item: any, index: number) => (
+//               <div key={index}>
+//                 {item?.output}
+//               </div>
+//             ))
+//           }
+//         </div>
+
+//         {/* Input */}
+//         <div>
+//           <form onSubmit={(e) => HandleSubmit(e)} className="flex justify-center items-center">
+//             <label className="w-[25px]" htmlFor="input">{"~>"}</label>
+//             <input type="text" name="input" className="border-none border-[1px] w-full outline-0" ref={inputRef} value={input} onChange={(e) => HandleInputChange(e)} />
+//           </form>
+//         </div>
+//         <div className="w-full h-[120px]"></div>
+//       </div>
+//     </div>
+//   );
+// }
+//#endregion
