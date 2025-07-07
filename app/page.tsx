@@ -119,13 +119,13 @@ export default function Home() {
     <div className="flex justify-center bg-black w-full h-full fixed">
       <div className="w-3/6 text-green-500 font-terminal p-2 overflow-auto scrollbar" ref={scrollRef}>
         {/* Header */}
-        <div>
+        <div className="sticky top-[-8px] bg-black">
           <p className="text-white text-2xl">yddod's Portfolio</p>
-          <p>type `help` to start!</p>
         </div>
 
         {/* Output */}
         <div>
+          <p>type `help` to start!</p>
           {outputList.map((item: any, index: number) => (
             <div key={index}>{item?.output}</div>
           ))}
