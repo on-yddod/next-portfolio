@@ -147,7 +147,7 @@ export default function Home() {
         </div>
 
         {/* Keep Space */}
-        <div className="w-full h-[120px]"></div>
+        <div className="w-full h-[120px]" onClick={FocusInput}></div>
       </div>
     </div>
   );
