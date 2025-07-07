@@ -119,38 +119,45 @@ export default function Home() {
 
   return (
     <div className="flex justify-center bg-black w-full h-full fixed">
-      <div className="w-3/6 text-green-500 font-terminal p-2 overflow-auto scrollbar" ref={scrollRef}>
-        {/* Header */}
-        <div className="sticky top-[-8px] bg-black">
-          <p className="text-white text-2xl">yddod&apos;s Portfolio</p>
-        </div>
+      {
+        commandList.length == 0 ?
+          <div className="w-full text-center text-green-500 text-[50px] flex justify-center items-center">
+            Loading Package...
+          </div>
+          :
+          <div className="w-3/6 text-green-500 font-terminal p-2 overflow-auto scrollbar" ref={scrollRef}>
+            {/* Header */}
+            <div className="sticky top-[-8px] bg-black">
+              <p className="text-white text-2xl">yddod&apos;s Portfolio</p>
+            </div>
 
-        {/* Output */}
-        <div>
-          <p>type <code>help</code> to start!</p>
-          {outputList.map((item, index) => (
-            <div key={index}>{item.output}</div>
-          ))}
-        </div>
+            {/* Output */}
+            <div>
+              <p>type <code>help</code> to start!</p>
+              {outputList.map((item, index) => (
+                <div key={index}>{item.output}</div>
+              ))}
+            </div>
 
-        {/* Input */}
-        <div>
-          <form onSubmit={HandleSubmit} className="flex justify-center items-center">
-            <label className="w-[25px]" htmlFor="input">{"~>"}</label>
-            <input
-              type="text"
-              name="input"
-              className="border-none border-[1px] w-full outline-0 bg-transparent text-green-500"
-              ref={inputRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-            />
-          </form>
-        </div>
+            {/* Input */}
+            <div>
+              <form onSubmit={HandleSubmit} className="flex justify-center items-center">
+                <label className="w-[25px]" htmlFor="input">{"~>"}</label>
+                <input
+                  type="text"
+                  name="input"
+                  className="border-none border-[1px] w-full outline-0 bg-transparent text-green-500"
+                  ref={inputRef}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                />
+              </form>
+            </div>
 
-        {/* Keep Space */}
-        <div className="w-full h-[120px]" onClick={FocusInput}></div>
-      </div>
+            {/* Keep Space */}
+            <div className="w-full h-[120px]" onClick={FocusInput}></div>
+          </div>
+      }
     </div>
   );
 }
