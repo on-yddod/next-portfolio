@@ -25,7 +25,7 @@ export default function Projects() {
         await fetchStore<IProjectData>(
             "projects",
             (data) => setProjectData(data),
-            (err: unknown) => {
+            (_err: unknown) => {
                 // console.error("Error:", err);
             }
         );

@@ -25,7 +25,7 @@ export default function Skills() {
         await fetchStore<ISkillData>(
             "skills",
             (data) => setSkillData(data),
-            (err: unknown) => {
+            (_err: unknown) => {
                 // console.error("Error:", err);
             }
         );

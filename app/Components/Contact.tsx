@@ -24,7 +24,7 @@ export default function Contact() {
         await fetchStore<IContactData>(
             "contact",
             (data) => setContactData(data),
-            (err: unknown) => {
+            (_err: unknown) => {
                 // console.error("Error:", err);
             }
         );

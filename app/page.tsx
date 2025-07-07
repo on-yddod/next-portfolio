@@ -41,7 +41,9 @@ export default function Home() {
     await fetchStore<CommandData>(
       "command_list",
       (data) => setCommandList(data),
-      (err: unknown) => console.error("Error:", err)
+      (_err: unknown) => {
+        // console.error("Error:", err);
+      }
     );
   }, []);
 
